@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface TeacherService {
     void addTeacher(Teacher teacher, Long userId, List<Role> roles) throws NoRightsException;
+    void addStudentToTeacher(Long teacherId, Long studentId, Long userId, List<Role> roles)
+            throws NoRightsException, NotFoundEntityException;
     Teacher getTeacher(Long teacherId, Long userId, List<Role> roles) throws
             NoRightsException, NotFoundEntityException;
     List<Test> getTeacherTests(Long teacherId, Long userId, List<Role> roles) throws

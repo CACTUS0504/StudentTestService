@@ -15,7 +15,6 @@ import java.util.Optional;
 public class StudentResultServiceImpl implements StudentResultService {
     @Autowired
     StudentResultRepository studentResultRepository;
-
     @Override
     public void addResult(Test test, Student student, Long userId, List<Role> roles)
             throws NoRightsException, NotFoundEntityException {

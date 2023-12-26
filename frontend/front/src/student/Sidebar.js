@@ -10,7 +10,7 @@ const Sidebar = (props) => {
                     <Navbar.Brand className='fs-5'>Мои преподаватели</Navbar.Brand>
                     <Accordion>
                         {props.teachers ? props.teachers.map((teacher) => (
-                            <SidebarTeacherButton teacher={teacher} setSelectedTestId={props.setSelectedTestId}></SidebarTeacherButton>)
+                            <SidebarTeacherButton teacher={teacher} setSelectedTestId={props.setSelectedTestId} studentId={props.studentId}></SidebarTeacherButton>)
                         ) : <></>}
                     </Accordion>
                 </Col>

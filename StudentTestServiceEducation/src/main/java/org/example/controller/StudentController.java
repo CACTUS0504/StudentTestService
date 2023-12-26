@@ -59,6 +59,25 @@ public class StudentController {
         }
     }
 
+    @GetMapping("/current")
+    public ResponseEntity getCurrentStudent(@RequestHeader("user_id") String userId,
+                                            @RequestHeader("roles") String roles) {
+
+        List<Role> listRoles = Arrays.stream(roles.substring(1, roles.length() - 1)
+                        .split(", "))
+                .map(Role::valueOf)
+                .toList();
+
+        try {
+            return ResponseEntity.status(HttpStatus.OK).body(studentService.getCurrentStudent(
+                    Long.valueOf(userId), listRoles));
+        } catch (NoRightsException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (NotFoundEntityException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     @DeleteMapping()
     public ResponseEntity deleteStudent(@RequestHeader("student_id") String studentId,
                                      @RequestHeader("user_id") String userId,

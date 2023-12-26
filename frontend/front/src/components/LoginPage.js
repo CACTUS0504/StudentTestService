@@ -30,7 +30,11 @@ const LoginPage = () => {
         })
         .then(([body]) => {
             setJwt(body.token);
-            window.location.href = "/dashboard"
+            if (body.roles.includes('TEACHER')) {
+                window.location.href = "/teacher"
+            } else if (body.roles.includes('STUDENT')) {
+                window.location.href = "/student"
+            }
         }).catch((message) => {
             alert(message);
         });

@@ -9,31 +9,41 @@ const StudentDashboard = () => {
     // Студенту доступен только просмотр тестов своих учителей
     // Нужно сделать, чтобы студент мог учиться на нескольких курсах (поменять связь на many-to-many)
     
+    const [studentId, setStudentId] = useState(null);
+    const [student, setStudent] = useState(null);
     const [teachers, setTeachers] = useState(null);
     const [selectedTestId, setSelectedTestId] = useState(0);
     const [currentTestPage, setCurrentTestPage] = useState(1);
     const[jwt, setJwt] = useLocalState("", "jwt");
-    // const [answers, setAnswers] = useState(() => {
-    //     let storedValue = JSON.parse(localStorage.getItem('answers'));
-
-    //     return storedValue !== null
-    //         ? storedValue
-    //         : '';
-    // });
 
     // Добавить получение всех учителей
     useEffect(() => {
-        fetch("edu/api/student/teachers", {
+        fetch("edu/api/student/current", {
             headers: {
                 "Authorization": `Bearer ${jwt}`,
-                "student_id": 1 //Этот id проверять в gateway
             }
+        }).then(response => {
+            if (response.status === 200) {
+                return response.json();
+            }
+        }).then(student => {
+            setStudentId(student.id);
+            setStudent(student);
+            return student.id;
+        }).then((studentId) => {
+            return fetch("edu/api/student/teachers", {
+                headers: {
+                    "Authorization": `Bearer ${jwt}`,
+                    "student_id": studentId
+                }
+            })
         }).then(response => {
             if (response.status === 200) {
                 return response.json();
             }
         }).then(teachers => {
             setTeachers(teachers);
+            console.log(teachers);
         })
     }, []);
 
@@ -49,7 +59,7 @@ const StudentDashboard = () => {
             <Row>
                 <Col>
                 <Nav className="me-auto">
-                    <Nav.Link href="#cabinet">Матвей Захаров</Nav.Link>
+                    <Nav.Link href="#cabinet">{student? student.firstName : ''} {student? student.surname : ''}</Nav.Link>
                     <Nav.Link onClick={() => logout()}>Выйти</Nav.Link>
                 </Nav>
                 </Col>
@@ -59,10 +69,10 @@ const StudentDashboard = () => {
         <Container fluid>
             <Row>
                 <Col lg='2'>
-                    <Sidebar teachers={teachers} setSelectedTestId={setSelectedTestId}></Sidebar>
+                    <Sidebar teachers={teachers} studentId={1} setSelectedTestId={setSelectedTestId}></Sidebar>
                 </Col>
                 <Col>
-                    <TestPage selectedTestId={selectedTestId} currentTestPage={currentTestPage} setCurrentTestPage={setCurrentTestPage} studentId={1}></TestPage>
+                    <TestPage selectedTestId={selectedTestId} currentTestPage={currentTestPage} setCurrentTestPage={setCurrentTestPage} studentId={studentId}></TestPage>
                 </Col>
             </Row>
         </Container>

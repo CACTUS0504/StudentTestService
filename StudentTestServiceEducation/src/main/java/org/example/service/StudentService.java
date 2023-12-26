@@ -13,6 +13,8 @@ public interface StudentService {
             throws NoRightsException, NotFoundEntityException;
     Student getStudent(Long studentId, Long userId, List<Role> roles)
             throws NoRightsException, NotFoundEntityException;
+    Student getCurrentStudent(Long userId, List<Role> roles)
+            throws NoRightsException, NotFoundEntityException;
     List<Student> getStudents(Long userId, List<Role> roles) throws NoRightsException ;
     void deleteStudent(Long studentId, Long userId, List<Role> roles)
             throws NoRightsException, NotFoundEntityException;

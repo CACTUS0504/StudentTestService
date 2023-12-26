@@ -5,6 +5,7 @@ import io from 'socket.io-client';
 
 const TestPage = (props) => {
     const [test, setTest] = useState(null);
+    const [mark, setMark] = useState(null);
     const [pages, setPages] = useState([]);
     const [answers, setAnswers] = useState([]);
     const[jwt, setJwt] = useLocalState("", "jwt");
@@ -47,11 +48,20 @@ const TestPage = (props) => {
         }).then(response => response.json())
     }
 
+    function getMark() {
+        return fetch("edu/api/test/result", {
+            headers:{
+                "test_id": props.selectedTestId,
+                "student_id": props.studentId,
+                "Authorization": `Bearer ${jwt}`,
+                "Content-Type": "application/json"
+            },
+        }).then(response => response.json())
+    }
+
     useEffect(() => {
-        
 
     }, [answers])
-
 
     useEffect(() => {
         if (props.selectedTestId === 0) return;
@@ -68,7 +78,9 @@ const TestPage = (props) => {
                 return Promise.reject("Can't find test with id=" + props.selectedTestId);
             }
         }).then(test => {
-            startTest().then(() => {
+            startTest().then((mark) => {
+                getMark().then(mark => {setMark(mark)}).catch(() => setMark(null))
+            }).then(() => {
                 getAnswers().then(answers => {
                     let arr = [];
                     for (let i = 0; i < test.questions.length; i++) {
@@ -151,13 +163,16 @@ const TestPage = (props) => {
                 "Content-Type": "application/json"
             },
         }).then(response => response.json())
-        .then(res => console.log(res));
-    }
+        .then(res => {
+            alert('Ваш результат: ' + Math.floor(res * 100) + '%');
+            window.location.href = "/student";
+        })
+    };
 
 
     return (
         <>
-        {test && test.questions.length !== 0?(
+        {test && test.questions.length !== 0 && mark === null ? (
             <>
             <div>
                 {test.questions[props.currentTestPage - 1].content}
@@ -176,6 +191,10 @@ const TestPage = (props) => {
             <br />
             <Button variant='secondary' style={{marginTop:'50px'}} onClick={() => sendAnswers()}>Завершить тест</Button>
             </>
+            ) : test && test.questions.length !== 0 && mark !== null ? (
+                <div>
+                    Ваш результат: {Math.floor(mark * 100)}%
+                </div>
             ) : (<></>)}
         </>
     );

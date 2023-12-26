@@ -6,6 +6,7 @@ import { useLocalState } from './util/useLocalState';
 import Dashboard from './components/Dashboard';
 import HomePage from './components/HomePage';
 import LoginPage from './components/LoginPage';
+import RegistrationPage from './components/RegistrationPage';
 import PrivateRoute from './privateRoute/PrivateRoute';
 import StudentDashboard from './student/StudentDashboard';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -23,6 +24,7 @@ function App() {
     <Routes>
       <Route path="/" element={<HomePage/>}/>
       <Route path="/login" element={<LoginPage/>}/>
+      <Route path="/registration" element={<RegistrationPage/>}/>
       <Route path="/dashboard" element={<PrivateRoute> <Dashboard/> </PrivateRoute>}/>
       <Route path="/student/*" element={<PrivateRoute> <StudentDashboard/> </PrivateRoute>}/>
     </Routes>

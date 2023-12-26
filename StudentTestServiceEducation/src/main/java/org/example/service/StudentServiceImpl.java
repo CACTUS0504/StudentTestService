@@ -67,6 +67,20 @@ public class StudentServiceImpl implements StudentService{
     }
 
     @Override
+    public Student getCurrentStudent(Long userId, List<Role> roles) throws NoRightsException, NotFoundEntityException {
+        if (roles.contains(Role.STUDENT)) {
+            Student student = studentRepository.findAllByOwnerId(userId).get(0);
+                if (Objects.equals(userId, student.getOwnerId())) {
+                    return student;
+                } else {
+                    throw new NoRightsException("user doesn't have right to get this student");
+                }
+            } else {
+                throw new NotFoundEntityException("Required student doesn't exist");
+            }
+    }
+
+    @Override
     public List<Student> getStudents(Long userId, List<Role> roles) throws NoRightsException {
         if (roles.contains(Role.ADMIN)) {
             List<Student> students = studentRepository.findAll();

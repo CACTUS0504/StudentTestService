@@ -6,6 +6,7 @@ import org.example.entity.Teacher;
 import org.example.entity.Test;
 import org.example.exceptions.NoRightsException;
 import org.example.exceptions.NotFoundEntityException;
+import org.example.repository.StudentRepository;
 import org.example.repository.TeacherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ import java.util.Optional;
 public class TeacherServiceImpl implements TeacherService {
     @Autowired
     TeacherRepository teacherRepository;
+
+    @Autowired
+    StudentRepository studentRepository;
     @Override
     public void addTeacher(Teacher teacher, Long userId, List<Role> roles) throws NoRightsException {
         if (roles.contains(Role.TEACHER)) {
@@ -25,6 +29,38 @@ public class TeacherServiceImpl implements TeacherService {
             teacherRepository.save(teacher);
         } else {
             throw new NoRightsException("User doesn't have rights to add teachers");
+        }
+    }
+
+    @Override
+    public void addStudentToTeacher(Long teacherId, Long studentId, Long userId, List<Role> roles)
+            throws NoRightsException, NotFoundEntityException {
+        if (roles.contains(Role.TEACHER)) {
+            Optional<Teacher> teacherOpt = teacherRepository.findById(teacherId);
+
+            if (teacherOpt.isPresent()) {
+                if (Objects.equals(userId, teacherOpt.get().getOwnerId())) {
+                    Teacher teacher = teacherOpt.get();
+                    List<Student> students = teacher.getStudents();
+                    if (!students.stream().map(Student::getId).toList().contains(studentId)) {
+                        Student student = studentRepository.findById(studentId).get();
+                        List<Teacher> teachers = student.getTeachers();
+                        teachers.add(teacher);
+                        student.setTeachers(teachers);
+                        students.add(student);
+                        teacher.setStudents(students);
+                        teacherRepository.save(teacher);
+                    } else {
+                        throw new NoRightsException("Student already assigned to this teacher");
+                    }
+                } else {
+                    throw new NoRightsException("User doesn't have rights to get this teacher");
+                }
+            } else {
+                throw new NotFoundEntityException("Required teacher doesn't exist");
+            }
+        } else {
+            throw new NoRightsException("User doesn't have rights to get teachers");
         }
     }
 

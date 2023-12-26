@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.example.entity.NewUser;
 import org.example.entity.Role;
+import org.example.entity.User;
 import org.example.request.LoginRequest;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,10 @@ public class UserController {
 
     // По умолчанию создаётся роль студента, т.к обладает наименьшими правами
     @PostMapping("/registration")
-    public String register(@RequestBody NewUser newUser){
-        return userService.createUser(newUser.login, newUser.password, List.of(Role.STUDENT));
+    public ResponseEntity register(@RequestBody NewUser newUser){
+        String token = userService.createUser(newUser.login, newUser.password, List.of(Role.STUDENT));
+        User user = userService.getByLogin(newUser.login);
+        return ResponseEntity.ok().body(new LoginRequest(token, user.getRoles()));
     }
 
     @PostMapping("/login")
@@ -33,7 +36,8 @@ public class UserController {
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body("Wrong login/password");
         }
-        return ResponseEntity.ok().body(new LoginRequest(token));
+        User user = userService.getByLogin(newUser.login);
+        return ResponseEntity.ok().body(new LoginRequest(token, user.getRoles()));
     }
 
     @PostMapping("/change-password")
